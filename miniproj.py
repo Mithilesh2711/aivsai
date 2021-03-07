@@ -19,6 +19,8 @@ from sklearn.metrics import accuracy_score
 
 app = Flask(__name__)
 
+port = int(os.environ.get('PORT', 5000))
+
 @app.route('/<stri>')
 def fun(stri):
 
@@ -173,4 +175,4 @@ def fun(stri):
 
 
 if(__name__ == "__main__"):
-    app.run()
+    app.run(host='0.0.0.0', port=port)
