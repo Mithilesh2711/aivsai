@@ -8,6 +8,7 @@ import urllib.parse as p
 import re
 import os
 import pickle
+import logging
 
 import numpy as np
 import pandas as pd
@@ -73,17 +74,26 @@ def fun(stri):
         ).execute()
 
     def print_video_infos(video_response):
-        print(video_response)
-        items = video_response.get("items")[0]
-        print("/////////////////////////////////////////////////////////////////")
-        print(items)
-        print("/////////////////////////////////////////////////////////////////")
+        #print(video_response)
+
+        for video_result in video_response.get('items', []):
+            global description
+            global title
+            global channel_title
+            channel_title =  video_result['snippet']['channelTitle']
+            title =  video_result['snippet']['title']
+            description =  video_result['snippet']['description']
+
+        #items = video_response.get("items").[0]
+        #print("/////////////////////////////////////////////////////////////////")
+        #print(items)
+        #print("/////////////////////////////////////////////////////////////////")
         # get the snippet, statistics & content details from the video response
-        snippet = items["snippet"]
+        #snippet = items["snippet"]
         # get infos from the snippet
-        channel_title = snippet["channelTitle"]
-        title = snippet["title"]
-        description = snippet["description"]
+       # channel_title = snippet["channelTitle"]
+        #title = snippet["title"]
+        #description = snippet["description"]
 
         if (len(description) > 1000):
             description = description[0:1000]
