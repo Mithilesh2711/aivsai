@@ -17,12 +17,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 port = int(os.environ.get('PORT', 5000))
 
-@app.route('/<stri>')
+@app.route('/<stri>', methods =['GET'])
 def fun(stri):
 
     SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
@@ -196,7 +198,7 @@ def fun(stri):
         Categories
         CategoryDict
 
-        return FinalDF
+        return (FinalDF)
 
     video_url = "https://www.youtube.com/watch?v=" + stri
     # parse video ID from URL
@@ -208,7 +210,7 @@ def fun(stri):
     final_list = final.values.tolist()
 
     return jsonify(
-        category = final_list[0][0],
+        {"category" : final_list[0][0]}
     )
 
     #############################################################################
