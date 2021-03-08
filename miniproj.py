@@ -107,8 +107,8 @@ def fun(stri):
         new_USvids.to_csv("newUS.csv", index=False)
         new_USvids = pd.read_csv("newUS.csv", header=0, names=['Title', 'Category_ID'])
 
-        Categories_JSON = pd.read_json("US_category_id.JSON")
-        Categories_JSON.head(3)
+        #Categories_JSON = pd.read_json("US_category_id.JSON")
+        #Categories_JSON.head(3)
 
         global Categories    
         global CategoryDict
