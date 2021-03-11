@@ -19,6 +19,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from flask_cors import CORS
 
+import re
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+
 app = Flask(__name__)
 CORS(app)
 
@@ -97,21 +103,30 @@ def fun(stri):
         #title = snippet["title"]
         #description = snippet["description"]
 
-        if (len(description) > 1000):
-            description = description[0:1000]
+        if (len(description) > 10000):
+            description = description[0:10000]
+            
+        if (len(title) > len(description))    :
+            description = title
 
 
         USvids = pd.read_csv("USvideos.csv", header=0)
         USvids.head(3)
-
-        keep_columns = ['title', 'category_id']
-        new_USvids = USvids[keep_columns]
+        
+        new_USvids = USvids['category_id']
         new_USvids.to_csv("newUS.csv", index=False)
-        new_USvids = pd.read_csv("newUS.csv", header=0, names=['Title', 'Category_ID'])
-
-        #Categories_JSON = pd.read_json("US_category_id.JSON")
-        #Categories_JSON.head(3)
-
+        corpus = pd.read_csv("corpus.csv", header=0)
+        new_USvids1 = pd.read_csv("newUS.csv", header=0)
+        new_USvids1 = pd.DataFrame(new_USvids1['category_id'].values)
+        corpus1 = pd.DataFrame(corpus['col'].values)
+        
+        new_USvids2 = pd.merge(corpus1, new_USvids1, left_index=True, right_index=True)
+        
+        new_USvids2.to_csv("newUS1.csv", index=False)
+        new_USvids = pd.read_csv("newUS1.csv", header=0, names=['Title', 'Category_ID'])
+        new_USvids = new_USvids.replace(np.nan, '', regex=True)
+        
+        
         global Categories    
         global CategoryDict
         #CategoryDict = [{'id': item['id'], 'title': item['snippet']['title']} for item in Categories_JSON['items']]
@@ -150,43 +165,43 @@ def fun(stri):
         CategoriesDF = pd.DataFrame(CategoryDict)
         Categories = CategoriesDF.rename(index=str, columns={"id": "Category_ID", "title": "Category"})
         Categories.head(3)
-
+        
         vector = CountVectorizer()
         counts = vector.fit_transform(new_USvids['Title'].values)
-
+        
         NB_Model = MultinomialNB()
         targets = new_USvids['Category_ID'].values
         NB_Model.fit(counts, targets)
-
+        
         MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
-
+        
         X = counts
         y = targets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.1)
-
+        
         NBtest = MultinomialNB().fit(X_train, y_train)
         nb_predictions = NBtest.predict(X_test)
         acc_nb = NBtest.score(X_test, y_test)
         print('The Naive Bayes Algorithm scored an accuracy of', acc_nb)
-
+        
         Titles = [
-            description
-        ]
-
+                 description
+            ]
+        
         Titles_counts = vector.transform(Titles)
         Predict = NB_Model.predict(Titles_counts)
-
+        
         CategoryNamesList = []
         for Category_ID in Predict:
             MatchingCategories = [x for x in CategoryDict if x["id"] == str(Category_ID)]
             if MatchingCategories:
                 CategoryNamesList.append(MatchingCategories[0]["title"])
-
+        
         TitleDataFrame = []
         for i in range(0, len(Titles)):
             TitleToCategories = {'Title': Titles[i], 'Category': CategoryNamesList[i]}
             TitleDataFrame.append(TitleToCategories)
-
+        
         PredictDF = pd.DataFrame(Predict)
         TitleDF = pd.DataFrame(TitleDataFrame)
         PreFinalDF = pd.concat([PredictDF, TitleDF], axis=1)
