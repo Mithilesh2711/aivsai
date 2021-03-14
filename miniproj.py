@@ -103,8 +103,8 @@ def fun(stri):
         #title = snippet["title"]
         #description = snippet["description"]
 
-        if (len(description) > 1000):
-            description = description[0:1000]
+        #if (len(description) > 1000):
+            #description = description[0:1000]
             
         if (len(title) > len(description))    :
             description = title
